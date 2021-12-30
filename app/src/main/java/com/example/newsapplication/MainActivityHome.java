@@ -1,6 +1,7 @@
 package com.example.newsapplication;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public class MainActivityHome extends AppCompatActivity implements CategoryRvAda
         newsRV.setAdapter(newsRVAdapter);
         categoryRV.setAdapter(categoryRvAdapter);
         getCategories();
+        Log.d("ab1","helll");
         getNews("All");
         newsRVAdapter.notifyDataSetChanged();
     }
@@ -60,6 +62,7 @@ public class MainActivityHome extends AppCompatActivity implements CategoryRvAda
     }
 
     private void getNews(String category) {
+        System.out.println("IN get");
         loadingPB.setVisibility(View.VISIBLE);
         articlesArrayList.clear();
         String categoryURL = "https://newsapi.org/v2/top-headlines?country=in&category=" + category + "&apiKey=1b12c40f7ad14b2b886febe0e26c53ba";
@@ -69,15 +72,16 @@ public class MainActivityHome extends AppCompatActivity implements CategoryRvAda
         RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
         Call<NewsModel> call;
         if (category.equals("All")) {
+            Log.d("ab1","wwwww");
             call = retrofitAPI.getAllNews(url);
         } else {
             call = retrofitAPI.getNewsByCategory(categoryURL);
         }
 
-        call.equals(new Callback<NewsModel>() {
-
+        call.enqueue(new Callback<NewsModel>() {
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(Call<NewsModel> call, Response<NewsModel> response) {
+                Log.d("ab1","wwwwwqq");
                 NewsModel newsModel = (NewsModel) response.body();
                 loadingPB.setVisibility(View.GONE);
                 ArrayList<Articles> articles = newsModel.getArticles();
@@ -88,10 +92,30 @@ public class MainActivityHome extends AppCompatActivity implements CategoryRvAda
             }
 
             @Override
-            public void onFailure(Call call, Throwable t) {
+            public void onFailure(Call<NewsModel> call, Throwable t) {
                 Toast.makeText(MainActivityHome.this, "Fail to get News", Toast.LENGTH_SHORT).show();
             }
         });
+        /*call.equals(new Callback<NewsModel>() {
+
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.d("ab1","wwwwwqq");
+                NewsModel newsModel = (NewsModel) response.body();
+                loadingPB.setVisibility(View.GONE);
+                ArrayList<Articles> articles = newsModel.getArticles();
+                for (int i = 0; i < articles.size(); i++) {
+                    articlesArrayList.add(new Articles(articles.get(i).getTitle(), articles.get(i).getDescription(), articles.get(i).getUrlToImage(), articles.get(i).getUrl(), articles.get(i).getContent()));
+                }
+                newsRVAdapter.notifyDataSetChanged();
+            }
+
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Toast.makeText(MainActivityHome.this, "Fail to get News", Toast.LENGTH_SHORT).show();
+            }
+        });*/
     }
 
     @Override
